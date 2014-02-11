@@ -6,6 +6,11 @@ require "kconv"
 MAIL = ARGV[0]
 PASS = ARGV[1]
 
+if MAIL == nil || PASS == nil then
+  puts "2ARGS is require"
+  exit 1
+end
+
 
 agent = Mechanize.new
 agent.user_agent_alias = "Mac Safari"
