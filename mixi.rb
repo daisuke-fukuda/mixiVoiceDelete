@@ -38,5 +38,28 @@ end
 
 # 最新の更新日時
 div =agent.page.search("dl.bbsList01//span.date")[0]
-last_updated = div.inner_text.gsub("\n", "")
-p  "last updated : " + last_updated
+now_updated = div.inner_text.gsub("\n", "")
+p  "now_updated : " + now_updated
+
+
+# 前回の結果
+dir_name = 'tmp'
+file_name = dir_name + '/updated.txt'
+
+if File.exist?(file_name)
+  last_updated = File.read(file_name)
+else
+  last_updated = ''
+end
+
+# ファイル保存
+FileUtils.mkdir_p(dir_name) unless FileTest.exist?(dir_name)
+
+File.write(file_name, now_updated)
+
+# 比較
+if now_updated == last_updated
+  p 'no change'
+else
+  p 'changed'
+end
