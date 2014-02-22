@@ -17,6 +17,15 @@ agent.user_agent_alias = "Mac Safari"
 
 # ログイン
 agent.get("http://mixi.jp")
+#agent.page.instance_variable_set(:@parser, nil)
+#agent.page.encoding="EUC-JP"
+#text = agent.page.at('div[@id="page"]').inner_text.gsub("\n", "")
+#p text.encoding
+#p text
+
+
+#exit
+
 agent.page.form("login_form").field("email").value=MAIL
 agent.page.form("login_form").field("password").value=PASS
 agent.page.form("login_form").submit
@@ -31,7 +40,7 @@ agent.page.encoding="EUC-JP-MS"
 #end
 #
 agent.page.search("div[@class='recentStream']//div[@class='feedContent']").each do |div|
-  p div.children.at("p[@class='name']").inner_text
-  p div.children.at("p[@class='description']").inner_text
-  p div.children.at("p[@class='description']").inner_text.encoding
+  p div.children.at("p[@class='name']").inner_text.gsub("\n", "")
+  p div.children.at("p[@class='description']").inner_text.gsub("\n", "")
+  #p div.children.at("p[@class='description']").inner_text.encoding
 end
