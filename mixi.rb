@@ -4,7 +4,7 @@ require "mechanize"
 require "kconv"
 
 # setting
-domain = "http://mixi.jp"
+DOMAIN = "http://mixi.jp"
 MAIL = ARGV[0]
 PASS = ARGV[1]
 COMMUNITY_ID = ARGV[2]
@@ -18,20 +18,25 @@ agent = Mechanize.new
 agent.user_agent_alias = "Mac Safari"
 
 # ログイン
-agent.get(domain)
+agent.get(DOMAIN)
 p 'login'
 agent.page.form("login_form").field("email").value=MAIL
 agent.page.form("login_form").field("password").value=PASS
 agent.page.form("login_form").submit
 
 # トップページ
-agent.get(domain + "/home.pl")
+agent.get(DOMAIN + "/home.pl")
 p 'top'
 
-# コミュニティページ
-agent.get(domain + '/view_community.pl?id=' + COMMUNITY_ID)
+# コミュニティのトピックページ
+agent.get(DOMAIN + '/list_bbs.pl?id=' + COMMUNITY_ID)
 p 'community'
 
 agent.page.search("div.pageTitle/h2").each do |div|
   p "commubnity title : " + div.inner_text.gsub("\n", "")
 end
+
+# 最新の更新日時
+div =agent.page.search("dl.bbsList01//span.date")[0]
+last_updated = div.inner_text.gsub("\n", "")
+p  "last updated : " + last_updated
