@@ -3,44 +3,35 @@ require "rubygems"
 require "mechanize"
 require "kconv"
 
+# setting
+domain = "http://mixi.jp"
 MAIL = ARGV[0]
 PASS = ARGV[1]
+COMMUNITY_ID = ARGV[2]
 
-if MAIL == nil || PASS == nil then
-  puts "2ARGS is require"
+if MAIL == nil || PASS == nil || COMMUNITY_ID == nil then
+  puts "3ARGS is require"
   exit 1
 end
-
 
 agent = Mechanize.new
 agent.user_agent_alias = "Mac Safari"
 
 # ログイン
-agent.get("http://mixi.jp")
-#agent.page.instance_variable_set(:@parser, nil)
-#agent.page.encoding="EUC-JP"
-#text = agent.page.at('div[@id="page"]').inner_text.gsub("\n", "")
-#p text.encoding
-#p text
-
-
-#exit
-
+agent.get(domain)
+p 'login'
 agent.page.form("login_form").field("email").value=MAIL
 agent.page.form("login_form").field("password").value=PASS
 agent.page.form("login_form").submit
-agent.get("http://mixi.jp/home.pl")
-agent.page.encoding="EUC-JP-MS"
 
-##### トップページ
-#p agent.page.title
-#p agent.page.at('p').inner_text
-#agent.page.search('p').each do |p|
-#  puts p.inner_text
-#end
-#
-agent.page.search("div[@class='recentStream']//div[@class='feedContent']").each do |div|
-  p div.children.at("p[@class='name']").inner_text.gsub("\n", "")
-  p div.children.at("p[@class='description']").inner_text.gsub("\n", "")
-  #p div.children.at("p[@class='description']").inner_text.encoding
+# トップページ
+agent.get(domain + "/home.pl")
+p 'top'
+
+# コミュニティページ
+agent.get(domain + '/view_community.pl?id=' + COMMUNITY_ID)
+p 'community'
+
+agent.page.search("div.pageTitle/h2").each do |div|
+  p "commubnity title : " + div.inner_text.gsub("\n", "")
 end
