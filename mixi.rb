@@ -4,13 +4,12 @@ require 'mechanize'
 require 'kconv'
 
 # setting
-DOMAIN = 'http://mixi.jp'
+DOMAIN = 'https://mixi.jp'
 MAIL = ARGV[0]
 PASS = ARGV[1]
-COMMUNITY_ID = ARGV[2]
 
-if MAIL == nil || PASS == nil || COMMUNITY_ID == nil then
-  puts '3ARGS is require'
+if MAIL == nil || PASS == nil  then
+  puts '2ARGS is require'
   exit 1
 end
 
@@ -28,38 +27,19 @@ agent.page.form('login_form').submit
 agent.get(DOMAIN + '/home.pl')
 p 'top'
 
-# コミュニティのトピックページ
-agent.get(DOMAIN + '/list_bbs.pl?id=' + COMMUNITY_ID)
-p 'community'
 
-agent.page.search('div.pageTitle/h2').each do |div|
-  p 'commubnity title : ' + div.inner_text.gsub('\n', '¥n')
-end
+for num in 1..100 do
+	page = agent.get(DOMAIN + '/list_voice.pl')
+	p 'voice'
 
-# 最新の更新日時
-div =agent.page.search('dl.bbsList01//span.date')[0]
-now_updated = div.inner_text.gsub('\n', '')
-p  'now_updated : ' + now_updated
+	#<a class="deleteIcon " href="delete_voice.pl?post_time=20161022191342&amp;redirect=list_voice.pl&amp;post_key=648078d3c3351838fb69737f14e1b2e3f59328f9">削除</a>
+	elements = page.search('a')
+	elements.each do |ele|
+		if ele.get_attribute(:class) == 'deleteIcon '
+			deleteHref = ele.get_attribute(:href)
+			agent.get(DOMAIN + "/" + deleteHref)
+			p deleteHref
+		end
+	end
+end 
 
-
-# 前回の結果
-dir_name = 'tmp'
-file_name = dir_name + '/updated.txt'
-
-if File.exist?(file_name)
-  last_updated = File.read(file_name)
-else
-  last_updated = ''
-end
-
-# ファイル保存
-FileUtils.mkdir_p(dir_name) unless FileTest.exist?(dir_name)
-
-File.write(file_name, now_updated)
-
-# 比較
-if now_updated == last_updated
-  p 'no change'
-else
-  p 'changed'
-end
